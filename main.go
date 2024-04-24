@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"peluang-server/internal/component"
 	"peluang-server/internal/config"
@@ -17,7 +16,6 @@ import (
 func main() {
 	conf := config.NewConfig()
 
-	fmt.Printf("%s:%s %s %s %s", conf.DB.Host, conf.DB.Port, conf.DB.User, conf.DB.Password, conf.DB.Name)
 	db := component.GetDatabaseConnection(conf)
 
 	component.Migrate(db)
