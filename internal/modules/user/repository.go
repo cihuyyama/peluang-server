@@ -17,11 +17,6 @@ func NewRepository(con *gorm.DB) domain.UserRepository {
 	}
 }
 
-// FindAll implements domain.UserRepository.
-func (r *repository) FindAll() ([]domain.User, error) {
-	panic("unimplemented")
-}
-
 // FindByEmail implements domain.UserRepository.
 func (r *repository) FindByEmail(email string) (user *domain.User, e error) {
 	err := r.db.Where("email = ?", email).First(&user)
@@ -29,6 +24,11 @@ func (r *repository) FindByEmail(email string) (user *domain.User, e error) {
 		return nil, err.Error
 	}
 	return user, nil
+}
+
+// FindAll implements domain.UserRepository.
+func (r *repository) FindAll() ([]domain.User, error) {
+	panic("unimplemented")
 }
 
 // FindByID implements domain.UserRepository.

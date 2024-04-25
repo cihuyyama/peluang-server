@@ -76,10 +76,36 @@ func (s *service) Register(user *domain.User, ctx context.Context) (otp int, err
 
 // ValidateOTP implements domain.UserService.
 func (s *service) ValidateOTP(id string, otp int) error {
-	panic("unimplemented")
+	userOtp, err := s.userOtpRepo.FindByUserID(id)
+	if err != nil {
+		return err
+	}
+
+	if userOtp.OTP != otp {
+		return domain.ErrInvalidOTP
+	}
+
+	if time.Now().Unix() > userOtp.ExpiredAt {
+		return domain.ErrExpiredOTP
+	}
+	return nil
 }
 
 // ResendOTP Test implements domain.UserService.
 func (s *service) ResendOTP(id string) (int, error) {
-	panic("unimplemented")
+	otp := util.GenerateOTP()
+
+	userOtp, err := s.userOtpRepo.FindByUserID(id)
+	if err != nil {
+		return 0, err
+	}
+	userOtp.OTP = otp
+	userOtp.ExpiredAt = time.Now().Add(time.Minute * 2).Unix()
+
+	err = s.userOtpRepo.Update(userOtp)
+	if err != nil {
+		return 0, err
+	}
+
+	return otp, nil
 }
