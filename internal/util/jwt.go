@@ -33,7 +33,7 @@ func ValidateToken(tokenString string) error {
 		return err
 	}
 	if !token.Valid {
-		return domain.ErrInavlidToken
+		return domain.ErrInvalidToken
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return nil, domain.ErrInavlidToken
+		return nil, domain.ErrInvalidToken
 	}
 	return claims, nil
 }
