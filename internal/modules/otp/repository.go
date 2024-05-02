@@ -3,7 +3,6 @@ package otp
 import (
 	"peluang-server/domain"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -18,19 +17,26 @@ func NewRepository(con *gorm.DB) domain.UserOtpRepository {
 }
 
 // FindByUserID implements domain.UserOtpRepository.
-func (r *repository) FindByUserID(userID uuid.UUID) (*domain.UserOtp, error) {
-	panic("unimplemented")
+func (r *repository) FindByUserID(userID string) (*domain.UserOtp, error) {
+	var userOtp *domain.UserOtp
+	if tx := r.db.Where("user_id = ?", userID).First(&userOtp); tx.Error != nil {
+		return &domain.UserOtp{}, tx.Error
+	}
+	return userOtp, nil
 }
 
 // Store implements domain.UserOtpRepository.
 func (r *repository) Store(userOtp *domain.UserOtp) error {
-	if err := r.db.Create(userOtp); err != nil {
-		return err.Error
+	if tx := r.db.Create(userOtp); tx.Error != nil {
+		return tx.Error
 	}
 	return nil
 }
 
 // Update implements domain.UserOtpRepository.
 func (r *repository) Update(userOtp *domain.UserOtp) error {
-	panic("unimplemented")
+	if tx := r.db.Save(userOtp); tx.Error != nil {
+		return tx.Error
+	}
+	return nil
 }

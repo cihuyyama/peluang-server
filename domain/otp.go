@@ -15,7 +15,7 @@ type UserOtp struct {
 }
 
 type UserOtpRepository interface {
-	FindByUserID(userID uuid.UUID) (*UserOtp, error)
+	FindByUserID(userID string) (*UserOtp, error)
 	Store(userOtp *UserOtp) error
 	Update(userOtp *UserOtp) error
 }
