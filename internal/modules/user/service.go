@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"peluang-server/domain"
+	"peluang-server/dto"
 	"peluang-server/internal/util"
 	"time"
 
@@ -27,8 +28,9 @@ func (s *service) GetAllUser() ([]domain.User, error) {
 }
 
 // GetUser implements domain.UserService.
-func (s *service) GetUser(token string) (*domain.User, error) {
-	user, err := s.userRepo.FindByToken(token)
+func (s *service) GetUser(ctx context.Context) (*domain.User, error) {
+	userID := ctx.Value("x-userid").(string)
+	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		return &domain.User{}, err
 	}
@@ -36,7 +38,11 @@ func (s *service) GetUser(token string) (*domain.User, error) {
 }
 
 // Login implements domain.UserService.
-func (s *service) Login(user *domain.User, ctx context.Context) (string, error) {
+func (s *service) Login(userReq *dto.LoginRequest, ctx context.Context) (string, error) {
+	user := new(domain.User)
+	user.Email = userReq.Email
+	user.Password = userReq.Password
+
 	userRepo, err := s.userRepo.FindByEmail(user.Email)
 	if err != nil {
 		return "", domain.ErrInvalidCredential
@@ -61,7 +67,7 @@ func (s *service) Register(user *domain.User, ctx context.Context) (*domain.User
 		return &domain.User{}, 0, domain.ErrEmailExist
 	}
 
-	user.ID = uuid.New()
+	user.ID = uuid.New().String()
 	hashedPassword, err := util.HashPassword(user.Password)
 	if err != nil {
 		return &domain.User{}, 0, err
@@ -74,7 +80,7 @@ func (s *service) Register(user *domain.User, ctx context.Context) (*domain.User
 
 	otp := util.GenerateOTP()
 	err = s.userOtpRepo.Store(&domain.UserOtp{
-		ID:        uuid.New(),
+		ID:        uuid.New().String(),
 		UserID:    user.ID,
 		OTP:       otp,
 		ExpiredAt: time.Now().Add(time.Minute * 2).Unix(),
@@ -85,10 +91,10 @@ func (s *service) Register(user *domain.User, ctx context.Context) (*domain.User
 	}
 
 	// AWS SES func
-	// err = util.SendTemplatedEmailVerification(int64(otp), user.Email)
-	// if err != nil {
-	// 	return err
-	// }
+	err = util.SendTemplatedEmailVerification(int64(otp), user.Email)
+	if err != nil {
+		return user, otp, err
+	}
 
 	return user, otp, nil
 }
@@ -108,13 +114,14 @@ func (s *service) ValidateOTP(id string, otp int) error {
 		return domain.ErrExpiredOTP
 	}
 
-	user, err := s.userRepo.FindByID(userOtp.UserID.String())
+	user, err := s.userRepo.FindByID(userOtp.UserID)
 	if err != nil {
 		return err
+	} else if user.VerifiedAt.Valid {
+		return domain.ErrAlreadyVerified
 	}
-	fmt.Println(user.VerifiedAt)
 
-	user.VerifiedAt = time.Now()
+	user.VerifiedAt.Time = time.Now()
 
 	err = s.userRepo.Update(user)
 	if err != nil {
@@ -138,6 +145,19 @@ func (s *service) ResendOTP(id string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	user, err := s.userRepo.FindByID(id)
+	if err != nil {
+		return 0, err
+	} else if user.VerifiedAt.Valid {
+		return 0, domain.ErrAlreadyVerified
+	}
+
+	// AWS SES func
+	// err = util.SendTemplatedEmailVerification(int64(otp), user.Email)
+	// if err != nil {
+	// 	return otp, err
+	// }
 
 	return otp, nil
 }

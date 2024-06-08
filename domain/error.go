@@ -8,6 +8,7 @@ var (
 	ErrInvalidOTP        = errors.New("invalid otp")
 	ErrExpiredOTP        = errors.New("otp has expired")
 	ErrInvalidCredential = errors.New("invalid credential")
+	ErrAlreadyVerified   = errors.New("user already verified")
 )
 
 //token error
@@ -17,4 +18,11 @@ var (
 	ErrExpiredToken   = errors.New("token has expired")
 	ErrEmptyToken     = errors.New("empty token")
 	ErrNoBerearToken  = errors.New("token no Bearer")
+)
+
+//merchant error
+var (
+	ErrMerchantAlreadyExist  = errors.New("merchant already exist")
+	ErrMerchantNotFound      = errors.New("merchant not found")
+	ErrMerchantImageNotFound = errors.New("merchant image not found")
 )

@@ -4,6 +4,7 @@ import (
 	"log"
 	"peluang-server/internal/component"
 	"peluang-server/internal/config"
+	"peluang-server/internal/modules/merchant"
 	"peluang-server/internal/modules/otp"
 	"peluang-server/internal/modules/user"
 
@@ -22,8 +23,10 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userOtpRepository := otp.NewRepository(db)
+	merchantRepository := merchant.NewRepository(db)
 
 	userService := user.NewService(userRepository, userOtpRepository)
+	merchantService := merchant.NewService(merchantRepository)
 
 	app := fiber.New()
 	app.Use(cors.New())
@@ -31,6 +34,7 @@ func main() {
 	app.Use(recover.New())
 
 	user.NewRoute(app, userService)
+	merchant.NewRoute(app, merchantService)
 
 	log.Fatal(app.Listen(":" + conf.Srv.Port))
 }
