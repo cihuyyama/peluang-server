@@ -25,4 +25,5 @@ var (
 	ErrMerchantAlreadyExist  = errors.New("merchant already exist")
 	ErrMerchantNotFound      = errors.New("merchant not found")
 	ErrMerchantImageNotFound = errors.New("merchant image not found")
+	ErrBannerNotFound        = errors.New("banner not found")
 )
