@@ -3,6 +3,7 @@ package merchant
 import (
 	"peluang-server/domain"
 	"peluang-server/dto"
+	"peluang-server/internal/middleware"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -21,12 +22,17 @@ func NewRoute(app *fiber.App, merchatService domain.MerchantService) {
 	{
 		api.Get("", merchantRoute.GetAllMerchants)
 		api.Get("/:slug", merchantRoute.GetMerchant)
-		api.Post("", merchantRoute.CreateMerchant)
-		api.Put("/:id", merchantRoute.UpdateMerchant)
-		api.Delete("/:id", merchantRoute.DeleteMerchant)
-		api.Put("/:id/avatar", merchantRoute.UpdateAvatar)
-		api.Post("/:id/images", merchantRoute.CreateImage)
-		api.Delete("/:id/images/:image_id", merchantRoute.DeleteImage)
+
+	}
+
+	protected := app.Group("/api/v1/merchant")
+	{
+		protected.Post("", middleware.Authenticate(), merchantRoute.CreateMerchant)
+		protected.Put("/:id", middleware.Authenticate(), merchantRoute.UpdateMerchant)
+		protected.Delete("/:id", middleware.Authenticate(), merchantRoute.DeleteMerchant)
+		protected.Put("/:id/avatar", middleware.Authenticate(), merchantRoute.UpdateAvatar)
+		protected.Post("/:id/images", middleware.Authenticate(), merchantRoute.CreateImage)
+		protected.Delete("/:id/images/:image_id", middleware.Authenticate(), merchantRoute.DeleteImage)
 	}
 }
 

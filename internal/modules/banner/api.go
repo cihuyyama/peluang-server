@@ -3,6 +3,7 @@ package banner
 import (
 	"peluang-server/domain"
 	"peluang-server/dto"
+	"peluang-server/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,10 +19,14 @@ func NewRoute(app *fiber.App, bannerService domain.BannerService) {
 
 	api := app.Group("/api/v1/banner")
 	{
-		api.Post("", bannerRoute.CreateBanner)
-		api.Delete("/:id", bannerRoute.DeleteBanner)
 		api.Get("", bannerRoute.GetAllBanners)
 		api.Get("/:id", bannerRoute.GetBanner)
+	}
+
+	protected := app.Group("/api/v1/banner", middleware.Authenticate())
+	{
+		protected.Post("", bannerRoute.CreateBanner)
+		protected.Delete("/:id", bannerRoute.DeleteBanner)
 	}
 }
 

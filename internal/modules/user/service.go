@@ -154,10 +154,10 @@ func (s *service) ResendOTP(id string) (int, error) {
 	}
 
 	// AWS SES func
-	// err = util.SendTemplatedEmailVerification(int64(otp), user.Email)
-	// if err != nil {
-	// 	return otp, err
-	// }
+	err = util.SendTemplatedEmailVerification(int64(otp), user.Email)
+	if err != nil {
+		return otp, err
+	}
 
 	return otp, nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"peluang-server/domain"
 	"peluang-server/dto"
+	"peluang-server/internal/middleware"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -33,10 +34,9 @@ func NewRoute(app *fiber.App, userService domain.UserService) {
 			route.ResendOTP)
 	}
 
-	// protectedApi := app.Group("/api")
-	// protectedApi.Use(middleware.Authenticate())
+	protected := app.Group("/api")
 	{
-		api.Get("/users", route.GetUser)
+		protected.Get("/users", middleware.Authenticate(), route.GetUser)
 
 	}
 
@@ -69,7 +69,7 @@ func (r *route) UserRegister(c *fiber.Ctx) error {
 	userModel.Username = user.Username
 	userModel.Telp = user.Telp
 
-	userRes, otp, err := r.userService.Register(userModel, c.Context())
+	userRes, _, err := r.userService.Register(userModel, c.Context())
 	if err != nil {
 		if err == domain.ErrEmailExist {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -89,7 +89,6 @@ func (r *route) UserRegister(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"OTP":  otp,
 		"data": res,
 	})
 }
@@ -193,7 +192,7 @@ func (r *route) ValidateOTP(c *fiber.Ctx) error {
 
 func (r *route) ResendOTP(c *fiber.Ctx) error {
 	userID := c.Params("id")
-	newOtp, err := r.userService.ResendOTP(userID)
+	_, err := r.userService.ResendOTP(userID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": fmt.Sprintf("error resending otp: %v", err),
@@ -201,7 +200,6 @@ func (r *route) ResendOTP(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": fmt.Sprintf("otp %d has been sent", newOtp),
-		"otp":     newOtp,
+		"message": fmt.Sprintf("otp %d has been sent"),
 	})
 }

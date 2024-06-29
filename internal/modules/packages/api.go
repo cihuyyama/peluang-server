@@ -3,6 +3,7 @@ package packages
 import (
 	"peluang-server/domain"
 	"peluang-server/dto"
+	"peluang-server/internal/middleware"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,16 +20,21 @@ func NewRoute(app *fiber.App, packageService domain.PackageService) {
 
 	api := app.Group("/api/v1/merchant/:merchant_id/packages")
 	{
-		api.Post("", packagesRoute.CreatePackage)
 		api.Get("", packagesRoute.GetAllPackages)
 		api.Get("/:id", packagesRoute.GetPackage)
-		api.Put("/:id", packagesRoute.UpdatePackage)
-		api.Delete("/:id", packagesRoute.DeletePackage)
 
-		api.Post("/:package_id/lists", packagesRoute.CreateList)
-		api.Post("/:package_id/aditionals", packagesRoute.CreateAditional)
-		api.Delete("/lists/:id", packagesRoute.DeleteList)
-		api.Delete("/aditionals/:id", packagesRoute.DeleteAditional)
+	}
+
+	protected := app.Group("/api/v1/merchant/:merchant_id/packages", middleware.Authenticate())
+	{
+		protected.Post("", packagesRoute.CreatePackage)
+		protected.Put("/:id", packagesRoute.UpdatePackage)
+		protected.Delete("/:id", packagesRoute.DeletePackage)
+
+		protected.Post("/:package_id/lists", packagesRoute.CreateList)
+		protected.Post("/:package_id/aditionals", packagesRoute.CreateAditional)
+		protected.Delete("/lists/:id", packagesRoute.DeleteList)
+		protected.Delete("/aditionals/:id", packagesRoute.DeleteAditional)
 	}
 }
 

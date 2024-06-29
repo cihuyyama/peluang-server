@@ -19,7 +19,12 @@ func NewRepository(con *gorm.DB) domain.MerchantRepository {
 // FindBySlug implements domain.MerchantRepository.
 func (m *merchantRepository) FindBySlug(slug string) (*domain.Merchant, error) {
 	var merchant *domain.Merchant
-	if tx := m.db.Preload("Images").Where("slug = ?", slug).First(&merchant); tx.Error != nil {
+	if tx := m.db.
+		Preload("Images").
+		Preload("Packages").
+		Preload("Packages.List").
+		Preload("Packages.Aditional").
+		Where("slug = ?", slug).First(&merchant); tx.Error != nil {
 		return &domain.Merchant{}, tx.Error
 	}
 	return merchant, nil
@@ -90,7 +95,7 @@ func (m *merchantRepository) FindAll() ([]domain.Merchant, error) {
 // FindByID implements domain.MerchantRepository.
 func (m *merchantRepository) FindByID(id string) (*domain.Merchant, error) {
 	var merchant *domain.Merchant
-	if tx := m.db.Preload("Images").Where("id = ?", id).First(&merchant); tx.Error != nil {
+	if tx := m.db.Preload("Images").Preload("Packages").Where("id = ?", id).First(&merchant); tx.Error != nil {
 		return &domain.Merchant{}, tx.Error
 	}
 	return merchant, nil
