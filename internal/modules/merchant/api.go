@@ -20,7 +20,7 @@ func NewRoute(app *fiber.App, merchatService domain.MerchantService) {
 	api := app.Group("/api/v1/merchant")
 	{
 		api.Get("", merchantRoute.GetAllMerchants)
-		api.Get("/:id", merchantRoute.GetMerchant)
+		api.Get("/:slug", merchantRoute.GetMerchant)
 		api.Post("", merchantRoute.CreateMerchant)
 		api.Put("/:id", merchantRoute.UpdateMerchant)
 		api.Delete("/:id", merchantRoute.DeleteMerchant)
@@ -64,8 +64,8 @@ func (mr *merchantRoute) CreateMerchant(c *fiber.Ctx) error {
 }
 
 func (mr *merchantRoute) GetMerchant(c *fiber.Ctx) error {
-	merchantID := c.Params("id")
-	merchant, err := mr.merchatService.GetMerchant(merchantID)
+	merchantSlug := c.Params("slug")
+	merchant, err := mr.merchatService.GetMerchant(merchantSlug)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": err.Error(),

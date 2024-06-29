@@ -16,6 +16,7 @@ type Merchant struct {
 	ImgUrl        string          `json:"img_url" gorm:"default:https://placehold.co/500x400.png"`
 	Key           string          `json:"key" gorm:"default:null"`
 	Images        []MerchantImage `json:"images" gorm:"foreignKey:MerchantID;references:ID"`
+	Packages      []Packages      `json:"packages" gorm:"foreignKey:MerchantID;references:ID"`
 	VerifiedAt    sql.NullTime    `json:"verified_at"`
 }
 
@@ -29,6 +30,7 @@ type MerchantImage struct {
 type MerchantRepository interface {
 	FindAll() ([]Merchant, error)
 	FindByID(id string) (*Merchant, error)
+	FindBySlug(slug string) (*Merchant, error)
 	FindImageByID(id string) (*MerchantImage, error)
 	Insert(merchant *Merchant) error
 	InsertImage(image *MerchantImage) error
@@ -41,7 +43,7 @@ type MerchantRepository interface {
 
 type MerchantService interface {
 	GetAllMerchants() ([]Merchant, error)
-	GetMerchant(id string) (*Merchant, error)
+	GetMerchant(slug string) (*Merchant, error)
 	CreateMerchant(merchant *dto.MerchantRequest) error
 	UpdateMerchant(id string, merchant *dto.MerchantRequest) error
 	DeleteMerchant(id string) error

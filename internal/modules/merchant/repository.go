@@ -16,6 +16,15 @@ func NewRepository(con *gorm.DB) domain.MerchantRepository {
 	}
 }
 
+// FindBySlug implements domain.MerchantRepository.
+func (m *merchantRepository) FindBySlug(slug string) (*domain.Merchant, error) {
+	var merchant *domain.Merchant
+	if tx := m.db.Preload("Images").Where("slug = ?", slug).First(&merchant); tx.Error != nil {
+		return &domain.Merchant{}, tx.Error
+	}
+	return merchant, nil
+}
+
 // Delete implements domain.MerchantRepository.
 func (m *merchantRepository) Delete(id string) error {
 	query := `DELETE FROM merchants WHERE id = ?`

@@ -13,5 +13,8 @@ func Migrate(db *gorm.DB) {
 		&domain.Merchant{},
 		&domain.MerchantImage{},
 		&domain.Banner{},
+		&domain.Packages{},
+		&domain.PackageList{},
+		&domain.AditionalList{},
 	)
 }

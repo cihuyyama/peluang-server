@@ -155,8 +155,8 @@ func (m *merchantService) GetAllMerchants() ([]domain.Merchant, error) {
 }
 
 // GetMerchant implements domain.MerchantService.
-func (m *merchantService) GetMerchant(id string) (*domain.Merchant, error) {
-	merchant, err := m.merchantRepo.FindByID(id)
+func (m *merchantService) GetMerchant(slug string) (*domain.Merchant, error) {
+	merchant, err := m.merchantRepo.FindBySlug(slug)
 	if err != nil {
 		return &domain.Merchant{}, err
 	}
