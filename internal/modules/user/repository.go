@@ -4,7 +4,6 @@ import (
 	"peluang-server/domain"
 	"peluang-server/internal/util"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -76,6 +75,6 @@ func (r *repository) Update(user *domain.User) error {
 }
 
 // Delete implements domain.UserRepository.
-func (r *repository) Delete(id uuid.UUID) error {
+func (r *repository) Delete(id string) error {
 	panic("unimplemented")
 }

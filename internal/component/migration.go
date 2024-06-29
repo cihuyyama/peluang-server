@@ -10,5 +10,11 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(
 		&domain.User{},
 		&domain.UserOtp{},
+		&domain.Merchant{},
+		&domain.MerchantImage{},
+		&domain.Banner{},
+		&domain.Packages{},
+		&domain.PackageList{},
+		&domain.AditionalList{},
 	)
 }

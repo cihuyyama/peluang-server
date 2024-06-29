@@ -54,6 +54,11 @@ func Authenticate() fiber.Handler {
 				},
 			)
 		}
+
+		if claims, err := util.GetClaims(tokenString); err == nil {
+			c.Locals("x-userid", claims["id"])
+		}
+
 		return c.Next()
 	}
 }
